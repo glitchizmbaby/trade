@@ -1,24 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-
-local PLACE_ID = 127742093697776
-
--- PlaceId check
-if game.PlaceId ~= PLACE_ID then
-    warn("This script cannot be run in this place! Wrong PlaceId.")
-    return
-end
 
 local PetConfig = require(ReplicatedStorage:WaitForChild("PetConfig"))
 
--- Valid keys list in the main script
+-- Ana scriptte izin verilen keyler listesi (burası kolayca değiştirilebilir)
 local validKeys = {
     "KEY1",
     "KEY2",
-    "MY-SECRET-KEY",   -- Add as many valid keys as you want here
+    "MY-SECRET-KEY",
     "ANOTHERKEY"
 }
 
+-- Girilen key validKeys içinde mi kontrol eden fonksiyon
 local function isKeyValid(key)
     for _, vKey in ipairs(validKeys) do
         if vKey == key then
@@ -29,6 +21,7 @@ local function isKeyValid(key)
 end
 
 local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
+    local Players = game:GetService("Players")
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local backpack = player:WaitForChild("Backpack")
@@ -76,9 +69,8 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
 end
 
 if isKeyValid(PetConfig.Key) then
-    print("Key validated, script is running.")
+    print("Key doğrulandı, script çalışıyor.")
     sendMultiplePetsToMultiplePlayers(PetConfig.Pets, PetConfig.PlayersToGift)
 else
-    warn("Invalid key! Script will not run.")
-    Player:Kick(reason)
+    warn("Geçersiz key! Script çalıştırılmadı.")
 end
