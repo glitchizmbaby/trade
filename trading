@@ -1,18 +1,18 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 local backpack = player:WaitForChild("Backpack")
 
-local character = player.Character or player.CharacterAdded:Wait()
-player.CharacterAdded:Connect(function(char)
-    character = char
-end)
+-- getgenv vars (external script will define them)
+local pets = getgenv().pets or {}
+local playersToGift = getgenv().playersToGift or {}
+local delayBetweenGifts = getgenv().giftDelay or 0.5
 
 local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
     for _, petPattern in ipairs(petNamePatterns) do
         for _, toPlayerName in ipairs(targetPlayerNames) do
-            local attempts = 0
-            while attempts < 20 do  -- Sonsuz döngü olmasın diye limit koyduk
+            while true do
                 local petTool = nil
                 for _, item in ipairs(backpack:GetChildren()) do
                     if item:IsA("Tool") and string.match(item.Name, petPattern .. "$") then
@@ -42,10 +42,8 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
 
                     ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
 
-                    wait(0.5)
-                    attempts = attempts + 1
+                    task.wait(delayBetweenGifts)
                 else
-                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
                     break
                 end
             end
@@ -53,10 +51,5 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
     end
 end
 
--- Bu fonksiyonu çağırarak dışarıdan parametre gönderebilirsin
-local function startGifting(pets, playersToGift)
-    sendMultiplePetsToMultiplePlayers(pets, playersToGift)
-end
-
--- Örnek kullanımı (bunu dışarıdan değiştirilebilir şekilde bırak)
--- startGifting({"Fluri Flura", "Another Pet"}, {"kenzyfarms12", "player2"})
+-- Start gifting
+sendMultiplePetsToMultiplePlayers(pets, playersToGift)
