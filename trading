@@ -4,6 +4,9 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local backpack = player:WaitForChild("Backpack")
 
+-- PetConfig modülünü al
+local PetConfig = require(ReplicatedStorage:WaitForChild("PetConfig"))
+
 local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
     for _, petPattern in ipairs(petNamePatterns) do
         for _, toPlayerName in ipairs(targetPlayerNames) do
@@ -39,15 +42,4 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
 
                     wait(0.5)
                 else
-                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
-                    break
-                end
-            end
-        end
-    end
-end
-
-local pets = {"Fluri Flura", "Another Pet"}
-local playersToGift = {"kenzyfarms12", "player2"}
-
-sendMultiplePetsToMultiplePlayers(pets, playersToGift)
+                    print("No more pets matching pattern '" .. pet
