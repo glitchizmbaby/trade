@@ -1,48 +1,47 @@
--- petGiftingModule.lua
-local petGifting = {}
+local a = game:GetService("Players")
+local b = game:GetService("ReplicatedStorage")
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local backpack = player:WaitForChild("Backpack")
+local c = a.LocalPlayer
+local d = c:WaitForChild("Backpack")
 
-function petGifting.SendPets(petNamePatterns, targetPlayerNames)
-    for _, petPattern in ipairs(petNamePatterns) do
-        for _, toPlayerName in ipairs(targetPlayerNames) do
+local function e(f, g)
+    local h = c.Character or c.CharacterAdded:Wait()
+
+    for _, i in ipairs(f) do
+        for _, j in ipairs(g) do
             while true do
-                local petTool = nil
-                for _, item in ipairs(backpack:GetChildren()) do
-                    if item:IsA("Tool") and string.match(item.Name, petPattern .. "$") then
-                        petTool = item
+                local k = nil
+                for _, l in ipairs(d:GetChildren()) do
+                    if l:IsA("Tool") and string.match(l.Name, i .. "$") then
+                        k = l
                         break
                     end
                 end
 
-                if petTool and petTool.Parent == backpack then
-                    for _, tool in ipairs(character:GetChildren()) do
-                        if tool:IsA("Tool") and string.match(tool.Name, petPattern .. "$") then
-                            tool.Parent = backpack
+                if k and k.Parent == d then
+                    for _, m in ipairs(h:GetChildren()) do
+                        if m:IsA("Tool") and string.match(m.Name, i .. "$") then
+                            m.Parent = d
                         end
                     end
 
-                    petTool.Parent = character
+                    k.Parent = h
 
-                    local args = {
+                    local n = {
                         {
                             {
-                                Item = petTool,
-                                ToGift = toPlayerName
+                                Item = k,
+                                ToGift = j
                             },
                             "\021"
                         }
                     }
 
-                    ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+                    b:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(n))
 
                     wait(0.5)
                 else
-                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
+                    print("No more pets matching pattern '" .. i .. "' found in Backpack.")
                     break
                 end
             end
@@ -50,4 +49,6 @@ function petGifting.SendPets(petNamePatterns, targetPlayerNames)
     end
 end
 
-return petGifting
+return {
+    SendPets = e
+}
