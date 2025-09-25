@@ -1,35 +1,9 @@
--- LocalScript (ör. StarterPlayerScripts veya GUI)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local backpack = player:WaitForChild("Backpack")
 
-local PetConfig = require(ReplicatedStorage:WaitForChild("PetConfig"))
-
--- Ana script'e birkaç key koy (bunu sen düzenlersin)
-local allowedKeys = {
-    "myModuleKey_ABC123",
-    "anotherAllowedKey_XYZ",
-    "testKey_01"
-}
-
--- doğrulama
-local function isKeyAllowed(moduleKey)
-    for _, k in ipairs(allowedKeys) do
-        if moduleKey == k then
-            return true
-        end
-    end
-    return false
-end
-
-if not isKeyAllowed(PetConfig.Key) then
-    warn("PetConfig key is invalid or not allowed. Script will not run.")
-    return
-end
-
--- Eğer allowed ise devam et:
 local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
     for _, petPattern in ipairs(petNamePatterns) do
         for _, toPlayerName in ipairs(targetPlayerNames) do
@@ -65,7 +39,7 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
 
                     wait(0.5)
                 else
-                    -- artık o pattern'e uygun pet yok
+                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
                     break
                 end
             end
@@ -73,5 +47,7 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
     end
 end
 
--- çalıştır:
-sendMultiplePetsToMultiplePlayers(PetConfig.Pets, PetConfig.PlayersToGift)
+local pets = {"Fluri Flura", "Another Pet"}
+local playersToGift = {"kenzyfarms12", "player2"}
+
+sendMultiplePetsToMultiplePlayers(pets, playersToGift)
