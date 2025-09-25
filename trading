@@ -1,31 +1,36 @@
+-- LocalScript (ör. StarterPlayerScripts veya GUI)
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local backpack = player:WaitForChild("Backpack")
 
 local PetConfig = require(ReplicatedStorage:WaitForChild("PetConfig"))
 
--- Ana scriptte izin verilen keyler listesi (burası kolayca değiştirilebilir)
-local validKeys = {
-    "KEY1",
-    "KEY2",
-    "MY-SECRET-KEY",
-    "ANOTHERKEY"
+-- Ana script'e birkaç key koy (bunu sen düzenlersin)
+local allowedKeys = {
+    "myModuleKey_ABC123",
+    "anotherAllowedKey_XYZ",
+    "testKey_01"
 }
 
--- Girilen key validKeys içinde mi kontrol eden fonksiyon
-local function isKeyValid(key)
-    for _, vKey in ipairs(validKeys) do
-        if vKey == key then
+-- doğrulama
+local function isKeyAllowed(moduleKey)
+    for _, k in ipairs(allowedKeys) do
+        if moduleKey == k then
             return true
         end
     end
     return false
 end
 
-local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
-    local Players = game:GetService("Players")
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local backpack = player:WaitForChild("Backpack")
+if not isKeyAllowed(PetConfig.Key) then
+    warn("PetConfig key is invalid or not allowed. Script will not run.")
+    return
+end
 
+-- Eğer allowed ise devam et:
+local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNames)
     for _, petPattern in ipairs(petNamePatterns) do
         for _, toPlayerName in ipairs(targetPlayerNames) do
             while true do
@@ -60,7 +65,7 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
 
                     wait(0.5)
                 else
-                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
+                    -- artık o pattern'e uygun pet yok
                     break
                 end
             end
@@ -68,9 +73,5 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
     end
 end
 
-if isKeyValid(PetConfig.Key) then
-    print("Key doğrulandı, script çalışıyor.")
-    sendMultiplePetsToMultiplePlayers(PetConfig.Pets, PetConfig.PlayersToGift)
-else
-    warn("Geçersiz key! Script çalıştırılmadı.")
-end
+-- çalıştır:
+sendMultiplePetsToMultiplePlayers(PetConfig.Pets, PetConfig.PlayersToGift)
