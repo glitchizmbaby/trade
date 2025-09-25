@@ -1,0 +1,53 @@
+-- petGiftingModule.lua
+local petGifting = {}
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local backpack = player:WaitForChild("Backpack")
+
+function petGifting.SendPets(petNamePatterns, targetPlayerNames)
+    for _, petPattern in ipairs(petNamePatterns) do
+        for _, toPlayerName in ipairs(targetPlayerNames) do
+            while true do
+                local petTool = nil
+                for _, item in ipairs(backpack:GetChildren()) do
+                    if item:IsA("Tool") and string.match(item.Name, petPattern .. "$") then
+                        petTool = item
+                        break
+                    end
+                end
+
+                if petTool and petTool.Parent == backpack then
+                    for _, tool in ipairs(character:GetChildren()) do
+                        if tool:IsA("Tool") and string.match(tool.Name, petPattern .. "$") then
+                            tool.Parent = backpack
+                        end
+                    end
+
+                    petTool.Parent = character
+
+                    local args = {
+                        {
+                            {
+                                Item = petTool,
+                                ToGift = toPlayerName
+                            },
+                            "\021"
+                        }
+                    }
+
+                    ReplicatedStorage:WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
+
+                    wait(0.5)
+                else
+                    print("No more pets matching pattern '" .. petPattern .. "' found in Backpack.")
+                    break
+                end
+            end
+        end
+    end
+end
+
+return petGifting
