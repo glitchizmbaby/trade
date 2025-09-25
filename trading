@@ -4,7 +4,21 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local backpack = player:WaitForChild("Backpack")
 
--- getgenv vars (external script will define them)
+-- ✅ Geçerli key listesi burada tutulur (gizli scriptte)
+local validKeys = {
+    ["abc123"] = true,
+    ["mySecretKey"] = true,
+    ["testkey2025"] = true
+}
+
+-- ✅ Dışarıdan verilen key kontrolü
+local providedKey = getgenv().key
+if not providedKey or not validKeys[providedKey] then
+    warn("[❌] Geçersiz key! Script çalıştırılamadı.")
+    return -- script burada durur
+end
+
+-- getgenv ile dışarıdan alınan ayarlar
 local pets = getgenv().pets or {}
 local playersToGift = getgenv().playersToGift or {}
 local delayBetweenGifts = getgenv().giftDelay or 0.5
@@ -51,5 +65,5 @@ local function sendMultiplePetsToMultiplePlayers(petNamePatterns, targetPlayerNa
     end
 end
 
--- Start gifting
+-- ✅ Key geçerli, script başlatılıyor
 sendMultiplePetsToMultiplePlayers(pets, playersToGift)
