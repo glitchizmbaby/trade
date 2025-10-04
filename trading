@@ -9,6 +9,7 @@ local giftEvent = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("GiftIt
 local favoriteEvent = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("FavoriteItem")
 
 task.wait(5)
+
 -- Tamamen gönderilecek petler
 local targetPetNames = {
     "Los Mr Carrotitos",
@@ -60,29 +61,13 @@ local function isTargetName2(name)
     return false
 end
 
-local function isAnyTargetName(name)
-    return isTargetName(name) or isTargetName2(name)
-end
-
 ----------------------------------------------------------------------
--- Plot İşlemleri
+-- Plot İşlemleri (isim kontrolsüz)
 ----------------------------------------------------------------------
 
 local function teleportAndTrigger(folder)
     local brainrot = folder:FindFirstChild("Brainrot")
     if not brainrot then return end
-
-    local platformUI = brainrot:FindFirstChild("PlatformUI")
-    if not platformUI then return end
-
-    local title = platformUI:FindFirstChild("Title")
-    if not title or not title:IsA("TextLabel") then return end
-
-    local cleanTitle = cleanBaseName(title.Text)
-    if not isAnyTargetName(cleanTitle) then
-        print("⏭️ Atlandı:", title.Text)
-        return
-    end
 
     local hitbox = folder:FindFirstChild("Hitbox") or folder:FindFirstChild("BrainrotHitbox")
     if hitbox then
@@ -91,7 +76,7 @@ local function teleportAndTrigger(folder)
         local prompt = hitbox:FindFirstChildOfClass("ProximityPrompt")
         if prompt then
             fireproximityprompt(prompt)
-            print("✅ Tetiklendi:", cleanTitle)
+            print("✅ Tetiklendi:", folder.Name)
             task.wait(1)
         else
             warn("❌ ProximityPrompt yok:", folder.Name)
